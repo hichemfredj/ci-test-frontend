@@ -28,6 +28,8 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
 
+  docker:
+
     - name: Login to docker hub
       uses: docker/login-action@v1
       with:
@@ -57,7 +59,6 @@ jobs:
         tags:  hichemfredj/ci-test-frontend:latest
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
-        tags: hichemfredj/ci-test-frontend:latest
     
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
