@@ -28,6 +28,18 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
 
+  - name: Set up Docker Buildx
+    id: buildx
+    uses: docker/setup-buildx-action@v1
+
+  - name: Cache Docker layers
+    uses: actions/cache@v2
+    with:
+      path: /tmp/.buildx-cache
+      key: ${{ runner.os }}-buildx-${{ github.sha }}
+      restore-keys: |
+        ${{ runner.os }}-buildx-
+
     - name: Login to docker hub
       uses: docker/login-action@v1
       with:
@@ -38,12 +50,13 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
+        builder: ${{ steps.buildx.outputs.name }}
         context: ./
         file: ./Dockerfile
         push: true
         tags:  hichemfredj/ci-test-frontend:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache
     
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
     
 
